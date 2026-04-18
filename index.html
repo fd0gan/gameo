@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Büşra'ya Özel</title>
+    <style>
+        :root {
+            --primary-pink: #ff6b81;
+            --accent-pink: #ff4757;
+            --bg-gradient: linear-gradient(180deg, #fff0f3 0%, #ffe4e8 100%);
+            --soft-white: rgba(255, 255, 255, 0.9);
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-gradient);
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            overflow: hidden;
+            touch-action: none;
+            color: #4a4a4a;
+        }
+
+        /* Header / Score Board */
+        #header {
+            padding: 20px 0;
+            text-align: center;
+            z-index: 100;
+        }
+
+        .score-container {
+            display: inline-block;
+            background: var(--soft-white);
+            padding: 8px 20px;
+            border-radius: 25px;
+            box-shadow: 0 4px 15px rgba(255, 107, 129, 0.15);
+            border: 2px solid #fff;
+        }
+
+        #score-text {
+            font-weight: 800;
+            color: var(--accent-pink);
+            font-size: 1.2rem;
+            letter-spacing: 0.5px;
+        }
+
+        /* Game Area */
+        #game-area {
+            flex-grow: 1;
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .heart {
+            position: absolute;
+            font-size: 55px;
+            cursor: grab;
+            user-select: none;
+            touch-action: none;
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            filter: drop-shadow(0 5px 10px rgba(255, 71, 87, 0.25));
+            will-change: transform, left, top;
+        }
+
+        .decor-bear {
+            position: absolute;
+            font-size: 35px;
+            opacity: 0.3;
+            z-index: 5;
+            pointer-events: none;
+            filter: grayscale(0.2);
+        }
+
+        /* Bottom Target Area */
+        #target-area {
+            height: 30vh;
+            background: var(--soft-white);
+            border-top: 3px solid #fff;
+            border-radius: 40px 40px 0 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 80;
+            box-shadow: 0 -10px 30px rgba(255, 107, 129, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        #gift-box-wrapper {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #gift-box {
+            font-size: 90px;
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .box-glow {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255,107,129,0.2) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.8); opacity: 0.5; }
+            50% { transform: scale(1.2); opacity: 0.8; }
+            100% { transform: scale(0.8); opacity: 0.5; }
+        }
+
+        #gift-box.bounce {
+            transform: scale(1.4) rotate(8deg);
+        }
+
+        .hint {
+            margin-top: 10px;
+            font-size: 0.95rem;
+            color: #888;
+            font-weight: 500;
+            opacity: 0.8;
+        }
+
+        /* Final Screen */
+        #final-screen {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: #fff;
+            z-index: 1000;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 30px;
+            animation: fadeIn 0.8s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .bear-hero {
+            font-size: 110px;
+            margin-bottom: 20px;
+            display: inline-block;
+            animation: floatHero 3s infinite ease-in-out;
+        }
+
+        @keyframes floatHero {
+            0%, 100% { transform: translateY(0) rotate(-3deg); }
+            50% { transform: translateY(-15px) rotate(3deg); }
+        }
+
+        .title {
+            font-size: 2.2rem;
+            color: var(--accent-pink);
+            margin: 10px 0;
+            font-weight: 900;
+        }
+
+        .sub-message {
+            font-size: 1.2rem;
+            color: #555;
+            line-height: 1.6;
+            margin: 20px 0;
+        }
+
+        .flower-bed {
+            font-size: 3.5rem;
+            margin-bottom: 30px;
+            letter-spacing: 10px;
+        }
+
+        #restart-btn {
+            background: var(--accent-pink);
+            color: white;
+            border: none;
+            padding: 18px 45px;
+            border-radius: 35px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            box-shadow: 0 10px 20px rgba(255, 71, 87, 0.3);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        #restart-btn:active {
+            transform: scale(0.95);
+        }
+
+        .particle {
+            position: fixed;
+            pointer-events: none;
+            z-index: 1100;
+            will-change: transform;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="header">
+        <div class="score-container">
+            <span id="score-text">🧸 Büşra için: <span id="score">0</span> / 12</span>
+        </div>
+    </div>
+
+    <div id="game-area"></div>
+
+    <div id="target-area">
+        <div id="gift-box-wrapper">
+            <div class="box-glow"></div>
+            <div id="gift-box">🎁</div>
+        </div>
+        <div class="hint">Kalpleri kutuya taşı Büşra ✨</div>
+    </div>
+
+    <!-- Final Ekranı -->
+    <div id="final-screen">
+        <div class="bear-hero">🧸👑</div>
+        <h1 class="title">Tebrikler Büşra Sultan !</h1>
+        <div class="sub-message">
+            O Zaman bunu hak ettin..<br>
+            <strong>Bu çiçekler sana...</strong>
+        </div>
+        <div class="flower-bed">🌹🌷🌸🌺🌻</div>
+        <button id="restart-btn" onclick="location.reload()">Baştan Başla ❤️</button>
+    </div>
+
+    <script>
+        const gameArea = document.getElementById('game-area');
+        const giftBox = document.getElementById('gift-box');
+        const scoreDisplay = document.getElementById('score');
+        const finalScreen = document.getElementById('final-screen');
+        const targetArea = document.getElementById('target-area');
+
+        let score = 0;
+        const goal = 12;
+        let activeHeart = null;
+        let startX, startY, heartX, heartY;
+
+        // Arka plan süslemeleri
+        function addDecor() {
+            for(let i=0; i<5; i++) {
+                const bear = document.createElement('div');
+                bear.className = 'decor-bear';
+                bear.innerHTML = '🧸';
+                bear.style.left = Math.random() * 85 + 'vw';
+                bear.style.top = Math.random() * 60 + 'vh';
+                bear.style.transform = `rotate(${Math.random() * 40 - 20}deg)`;
+                gameArea.appendChild(bear);
+            }
+        }
+        addDecor();
+
+        function createHeart() {
+            const heart = document.createElement('div');
+            heart.className = 'heart';
+            heart.innerHTML = ['❤️', '💖', '💝', '💕'][Math.floor(Math.random() * 4)];
+            
+            // Rastgele konum
+            const x = Math.random() * (window.innerWidth - 80) + 10;
+            const y = Math.random() * (gameArea.offsetHeight * 0.6) + 20;
+            
+            heart.style.left = x + 'px';
+            heart.style.top = y + 'px';
+
+            heart.addEventListener('touchstart', onStart, {passive: false});
+            heart.addEventListener('mousedown', onStart);
+
+            gameArea.appendChild(heart);
+            animateFloating(heart);
+        }
+
+        function animateFloating(el) {
+            let angle = Math.random() * Math.PI * 2;
+            const speed = 0.02 + Math.random() * 0.02;
+            const range = 10 + Math.random() * 10;
+            
+            function step() {
+                if (activeHeart !== el && el.parentElement) {
+                    angle += speed;
+                    const ty = Math.sin(angle) * range;
+                    const rot = Math.cos(angle) * 5;
+                    el.style.transform = `translateY(${ty}px) rotate(${rot}deg)`;
+                    requestAnimationFrame(step);
+                }
+            }
+            requestAnimationFrame(step);
+        }
+
+        function onStart(e) {
+            e.preventDefault();
+            activeHeart = e.target;
+            
+            const point = e.type.includes('touch') ? e.touches[0] : e;
+            const rect = activeHeart.getBoundingClientRect();
+            
+            startX = point.clientX;
+            startY = point.clientY;
+            heartX = rect.left;
+            heartY = rect.top;
+
+            activeHeart.style.zIndex = '1000';
+            activeHeart.style.transition = 'none';
+            activeHeart.style.transform = 'scale(1.2) rotate(0deg)';
+        }
+
+        function onMove(e) {
+            if (!activeHeart) return;
+            
+            const point = e.type.includes('touch') ? e.touches[0] : e;
+            const dx = point.clientX - startX;
+            const dy = point.clientY - startY;
+
+            const newX = heartX + dx;
+            const newY = heartY + dy;
+
+            activeHeart.style.left = newX + 'px';
+            activeHeart.style.top = newY + 'px';
+
+            checkCapture(point.clientX, point.clientY);
+        }
+
+        function onEnd() {
+            if (activeHeart) {
+                activeHeart.style.zIndex = '50';
+                activeHeart.style.transform = 'scale(1)';
+                activeHeart = null;
+            }
+        }
+
+        function checkCapture(x, y) {
+            const targetRect = targetArea.getBoundingClientRect();
+            
+            if (y > targetRect.top + 20) {
+                const captured = activeHeart;
+                activeHeart = null;
+                
+                score++;
+                scoreDisplay.innerText = score;
+
+                giftBox.classList.add('bounce');
+                setTimeout(() => giftBox.classList.remove('bounce'), 250);
+
+                captured.style.transition = 'all 0.4s cubic-bezier(0.5, 0, 0.5, 1)';
+                captured.style.transform = 'scale(0) translateY(50px)';
+                captured.style.opacity = '0';
+                
+                setTimeout(() => captured.remove(), 400);
+
+                if (score >= goal) {
+                    finishGame();
+                } else {
+                    setTimeout(createHeart, 300);
+                }
+            }
+        }
+
+        function finishGame() {
+            setTimeout(() => {
+                finalScreen.style.display = 'flex';
+                startConfetti();
+            }, 600);
+        }
+
+        function startConfetti() {
+            setInterval(() => {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                p.innerHTML = ['🌸', '✨', '💖', '🌹', '🦋'][Math.floor(Math.random() * 5)];
+                p.style.left = Math.random() * 100 + 'vw';
+                p.style.top = '-50px';
+                p.style.fontSize = (20 + Math.random() * 25) + 'px';
+                document.body.appendChild(p);
+
+                p.animate([
+                    { transform: 'translateY(0) rotate(0deg)', opacity: 1 },
+                    { transform: `translateY(110vh) rotate(${Math.random() * 360}deg)`, opacity: 0.7 }
+                ], {
+                    duration: 3000 + Math.random() * 2000,
+                    easing: 'linear'
+                }).onfinish = () => p.remove();
+            }, 300);
+        }
+
+        window.addEventListener('mousemove', onMove);
+        window.addEventListener('touchmove', onMove, {passive: false});
+        window.addEventListener('mouseup', onEnd);
+        window.addEventListener('touchend', onEnd);
+
+        createHeart();
+        setTimeout(createHeart, 800);
+    </script>
+</body>
+</html>
